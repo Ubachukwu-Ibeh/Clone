@@ -12,12 +12,12 @@ const _getDefType = (_buildDef, _mutableSlotName, _el) => {
         _el.appendChild(_defElem);
         _mutable[_mutableSlotName] = _defElem;
       },
-      function () {
+      function() {
         const _defElem = _buildDef();
         _el.appendChild(_defElem);
         _mutable[_mutableSlotName] = _defElem;
       }
-    } [typeof _buildDef]());
+    }[typeof _buildDef]());
   } catch (error) {
     throw new Error(
       `on initializing component - Expected node or string as value. Received ${
@@ -34,12 +34,10 @@ const _getPropType = (child, _el) =>
     },
     false() {
       const [_mutableSlotName] = child;
-      const {
-        [_mutableSlotName]: _buildDef
-      } = _allCompProps;
+      const { [_mutableSlotName]: _buildDef } = _allCompProps;
       _getDefType(_buildDef, _mutableSlotName, _el);
     }
-  } [child instanceof Node]());
+  }[child instanceof Node]());
 
 const _getType = (child, _el) => {
   try {
@@ -50,7 +48,7 @@ const _getType = (child, _el) => {
       object() {
         _getPropType(child, _el);
       }
-    } [typeof child]());
+    }[typeof child]());
   } catch (error) {
     throw new Error(
       `on initializing component - Expected node or property name in array as value. Received ${typeof child} instead.`
@@ -59,7 +57,7 @@ const _getType = (child, _el) => {
 };
 
 const _stateTypes = {
-  function (obj, _key, _MyConstructor) {
+  function(obj, _key, _MyConstructor) {
     _MyConstructor.prototype[_key] = obj.states[_key];
     delete obj.states[_key];
   },
@@ -83,17 +81,17 @@ const _updateProperty = (obj, key, newKey) => {
     },
     set(newVal) {
       try {
-        typeof newVal === "string" ?
-          (() => {
-            const _elem = document.createTextNode(newVal);
-            _val.parentNode.replaceChild(_elem, _val);
-            _val = _elem;
-          })() :
-          (() => {
-            const _elem = newVal;
-            _val.parentNode.replaceChild(_elem, _val);
-            _val = _elem;
-          })();
+        typeof newVal === "string"
+          ? (() => {
+              const _elem = document.createTextNode(newVal);
+              _val.parentNode.replaceChild(_elem, _val);
+              _val = _elem;
+            })()
+          : (() => {
+              const _elem = newVal;
+              _val.parentNode.replaceChild(_elem, _val);
+              _val = _elem;
+            })();
       } catch (error) {
         throw new Error(
           `on updating property - Expected node or string as value on '${_key}' property. Received ${typeof newVal} instead.`
@@ -235,22 +233,13 @@ export const redefineProperty = (key, newKey, obj) => {
       .filter(item => item[1] === node)
       .forEach(item => delete obj[item[0]]);
   });
-  _iniProp = null;
+  _iniProp = undefined;
 
   obj[newKey] = obj[key];
 
   _updateProperty(obj, key, newKey);
 
   delete obj[key];
-};
-/*------------------------------------------
-*
-*                   REMOVE? (avoid this for now)
-*
----------------------------------------------*/
-
-export const remove = elem => {
-  elem.parentNode.removeChild(elem);
 };
 /*------------------------------------------
 *
