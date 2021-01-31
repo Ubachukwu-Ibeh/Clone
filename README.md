@@ -8,7 +8,7 @@ A lightweight javascript framework for component based UI creation.
 > Publication coming soon
 
 
-<a href="#"><img src="sample.png" width="300"></a>
+<a href="#"><img src="" width="300"></a>
 
 
 
