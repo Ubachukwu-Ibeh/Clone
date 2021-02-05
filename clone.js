@@ -37,6 +37,9 @@ const propMutationObserver = (parentProp, key) => {
     set(newVal) {
       parentProp.childComponents.forEach(child => {
         child[key] = newVal;
+        if (child.data) {
+          child.data[key](newVal);
+        }
       });
       val = newVal;
     }
@@ -106,11 +109,12 @@ class CloneComponent {
     return this.main;
   }
 }
-export const useProp = obj => {
+export const createData = obj => {
   obj.childComponents = [];
   for (const key in obj) {
     propMutationObserver(obj, key);
   }
   return obj;
 };
+export const useData = obj => ({ ...obj });
 export default CloneComponent;

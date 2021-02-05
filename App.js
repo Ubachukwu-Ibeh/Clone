@@ -1,12 +1,12 @@
-import CloneComponent, { useProp } from "./clone.js";
+import CloneComponent, { createData } from "./clone.js";
 import Header from "./components/Header.js";
 
 const App = () => {
-  let clicked = false;
   let count = 0;
 
-  const props = useProp({
-    isClicked: "Beans is good"
+  const headerProps = createData({
+    isClicked: false,
+    addNewText: false
   });
 
   return new CloneComponent()
@@ -14,7 +14,7 @@ const App = () => {
       app.create(
         "div",
         { class: "main" },
-        { header: Header(props) },
+        { header: Header(headerProps) },
         {
           button: app.create("button", {}, "Change Header title")
         },
@@ -23,12 +23,12 @@ const App = () => {
     )
     .mounted(app => {
       setInterval(() => {
+        headerProps.addNewText = !(count % 2) ? true : false;
         app.counter = count++;
       }, 100);
 
       app.button.onclick = () => {
-        clicked = !clicked;
-        props.isClicked = clicked ? "The food is great" : "Beans is good";
+        headerProps.isClicked = !headerProps.isClicked;
       };
     });
 };
