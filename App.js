@@ -1,25 +1,36 @@
-import CloneComponent from "./clone.js";
+import CloneComponent, { useProp } from "./clone.js";
 import Header from "./components/Header.js";
 
 const App = () => {
-  let isClicked = false;
+  let clicked = false;
+  let count = 0;
+
+  const props = useProp({
+    isClicked: "Beans is good"
+  });
 
   return new CloneComponent()
-    .markUp(app =>
+    .markup(app =>
       app.create(
         "div",
-        {},
-        { header: Header(isClicked) },
+        { class: "main" },
+        { header: Header(props) },
         {
           button: app.create("button", {}, "Change Header title")
-        }
+        },
+        app.create("p", {}, { counter: 0 })
       )
     )
     .mounted(app => {
+      setInterval(() => {
+        app.counter = count++;
+      }, 100);
+
       app.button.onclick = () => {
-        isClicked = !isClicked;
-        app.header = Header(isClicked);
+        clicked = !clicked;
+        props.isClicked = clicked ? "The food is great" : "Beans is good";
       };
     });
 };
+
 export default App;

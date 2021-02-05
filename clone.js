@@ -27,9 +27,29 @@ const mutationObserver = (parentComponent, key) => {
     }
   });
 };
+const propMutationObserver = (parentProp, key) => {
+  let val = parentProp[key];
 
-const getMutableChildType = child =>
-  child instanceof Node ? child : document.createTextNode(child);
+  Object.defineProperty(parentProp, key, {
+    get() {
+      return val;
+    },
+    set(newVal) {
+      parentProp.childComponents.forEach(child => {
+        child[key] = newVal;
+      });
+      val = newVal;
+    }
+  });
+};
+
+const getMutableChildType = child => {
+  if (child instanceof Node) {
+    return child;
+  } else {
+    return document.createTextNode(child);
+  }
+};
 
 const getChildType = (child, parentComponent) => {
   switch (typeof child) {
@@ -39,7 +59,6 @@ const getChildType = (child, parentComponent) => {
       } else {
         const key = Object.keys(child)[0];
         const mutableChild = getMutableChildType(child[key]);
-
         componentProps[parentComponent.name] = {
           ...componentProps[parentComponent.name],
           [key]: mutableChild
@@ -55,9 +74,11 @@ const getChildType = (child, parentComponent) => {
 };
 
 class CloneComponent {
-  constructor() {
+  constructor(props) {
     this.name = id;
-    componentProps[this.name] = this;
+    if (props) {
+      props.childComponents.push(this);
+    }
     id++;
   }
 
@@ -75,14 +96,21 @@ class CloneComponent {
     return el;
   }
 
-  markUp(callback) {
-    this.JSX = callback(this);
+  markup(callback) {
+    this.main = callback(this);
     return this;
   }
 
   mounted(callback) {
     callback && callback(this);
-    return this.JSX;
+    return this.main;
   }
 }
+export const useProp = obj => {
+  obj.childComponents = [];
+  for (const key in obj) {
+    propMutationObserver(obj, key);
+  }
+  return obj;
+};
 export default CloneComponent;

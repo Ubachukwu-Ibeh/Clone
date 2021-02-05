@@ -1,14 +1,9 @@
 import CloneComponent from "../clone.js";
 
-const Header = isClicked =>
-  new CloneComponent()
-    .markUp(app =>
-      app.create(
-        "h1",
-        {},
-        { title: isClicked ? "Beans is good" : "The food was great" }
-      )
-    )
+const Header = props => {
+  return new CloneComponent(props)
+    .markup(app => app.create("h1", {}, { isClicked: props.isClicked }))
     .mounted();
+};
 
 export default Header;
