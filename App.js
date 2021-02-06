@@ -13,7 +13,7 @@ const App = () => {
       app.create(
         "div",
         { class: "main" },
-        { header: Header(headerProps) },
+        Header(headerProps),
         {
           button: app.create("button", {}, "Change Header title")
         },
