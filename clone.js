@@ -37,8 +37,8 @@ const propMutationObserver = (parentProp, key) => {
     set(newVal) {
       parentProp.childComponents.forEach(child => {
         child[key] = newVal;
-        if (child.data) {
-          child.data[key](newVal);
+        if (typeof child.useProp === "object") {
+          child.useProp[key](newVal);
         }
       });
       val = newVal;
@@ -76,12 +76,48 @@ const getChildType = (child, parentComponent) => {
   }
 };
 
+export const useStyle = {};
+const styleMutationObserver = (obj, key, el, elem, children, component) => {
+  let val = obj[key];
+
+  Object.defineProperty(obj, key, {
+    get() {
+      return val;
+    },
+    set(newVal) {
+      if (typeof newVal === "string") {
+        el.className = newVal;
+      } else {
+        const newElement = document.createElement(elem);
+        const styles = newVal;
+        for (const styleKey in styles) {
+          newElement.style[styleKey] = styles[styleKey];
+        }
+        children.forEach(child => {
+          let newChild;
+          if (typeof child === "object" && !(child instanceof Node)) {
+            newChild = componentProps[component.name][Object.keys(child)[0]];
+          } else {
+            newChild = child;
+          }
+          newElement.append(newChild);
+        });
+        el.parentNode.replaceChild(newElement, el);
+      }
+      val = [newVal, el, elem];
+    }
+  });
+};
+
 class CloneComponent {
   constructor(props) {
     this.name = id;
     if (props) {
       props.childComponents.push(this);
     }
+    this.useProp = obj => {
+      this.useProp = { ...obj };
+    };
     id++;
   }
 
@@ -89,7 +125,20 @@ class CloneComponent {
     const el = document.createElement(elem);
 
     Object.keys(attributes).forEach(attr => {
-      el.setAttribute(attr, attributes[attr]);
+      if (attr.charAt(0) === "_") {
+        const style = attributes[attr];
+        useStyle[attr] = [style, el, elem];
+        if (typeof style === "string") {
+          el.className = style;
+        } else {
+          for (const styleKey in style) {
+            el.style[styleKey] = style[styleKey];
+          }
+        }
+        styleMutationObserver(useStyle, attr, el, elem, children, this);
+      } else {
+        el.setAttribute(attr, attributes[attr]);
+      }
     });
 
     children.forEach(child => {
@@ -109,12 +158,11 @@ class CloneComponent {
     return this.main;
   }
 }
-export const createData = obj => {
+export const useProp = obj => {
   obj.childComponents = [];
   for (const key in obj) {
     propMutationObserver(obj, key);
   }
   return obj;
 };
-export const useData = obj => ({ ...obj });
 export default CloneComponent;

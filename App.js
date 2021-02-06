@@ -1,12 +1,11 @@
-import CloneComponent, { createData } from "./clone.js";
+import CloneComponent, { useProp, useStyle } from "./clone.js";
 import Header from "./components/Header.js";
 
 const App = () => {
   let count = 0;
 
-  const headerProps = createData({
-    isClicked: false,
-    addNewText: false
+  const headerProps = useProp({
+    isClicked: false
   });
 
   return new CloneComponent()
@@ -18,12 +17,18 @@ const App = () => {
         {
           button: app.create("button", {}, "Change Header title")
         },
-        app.create("p", {}, { counter: 0 })
+        app.create("p", { _counterStyles: { color: "red" } }, { counter: 0 })
       )
     )
     .mounted(app => {
       setInterval(() => {
-        headerProps.addNewText = !(count % 2) ? true : false;
+        if (count === 50) {
+          useStyle._counterStyles = {
+            fontWeight: "200",
+            fontSize: "20pt",
+            color: "green"
+          };
+        }
         app.counter = count++;
       }, 100);
 
