@@ -86,7 +86,17 @@ const styleMutationObserver = (obj, key, el, elem, children, component) => {
     },
     set(newVal) {
       if (typeof newVal === "string") {
-        el.className = newVal;
+        if (val[1]) {
+          const newElement = val[1];
+          newElement.setAttribute("class", newVal);
+          newElement.removeAttribute("style");
+          val = [newVal, newElement, elem];
+        } else {
+          el.setAttribute("class", newVal);
+          el.removeAttribute("style");
+          val = [newVal, el, elem];
+        }
+        return;
       } else {
         const newElement = document.createElement(elem);
         const styles = newVal;
@@ -102,9 +112,10 @@ const styleMutationObserver = (obj, key, el, elem, children, component) => {
           }
           newElement.append(newChild);
         });
-        el.parentNode.replaceChild(newElement, el);
+        val[1].parentNode.replaceChild(newElement, val[1]);
+        val = [newVal, newElement, elem];
+        return;
       }
-      val = [newVal, el, elem];
     }
   });
 };
